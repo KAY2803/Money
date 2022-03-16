@@ -1,3 +1,5 @@
+import json
+import requests
 from typing import Union, Optional
 from utils import check_types, check_type
 
@@ -12,19 +14,21 @@ class Money:
         check_type(other, Money)
         if self.name == other.name:
             return Money(self.name, round(self.value + other.value, 2))
+
     # добавить else (конвертация в одну валюту) или ошибку
 
     def __sub__(self, other):
         check_type(other, Money)
         if self.name == other.name:
             return Money(self.name, round(self.value - other.value, 2))
+
     # добавить else (конвертация в одну валюту) или ошибку
 
-    def __mul__(self, other: int|float):
+    def __mul__(self, other: int | float):
         check_types(other, (int, float))
         return Money(self.name, round(self.value * other, 2))
 
-    def __truediv__(self, other: int|float):
+    def __truediv__(self, other: int | float):
         check_types(other, (int, float))
         return Money(self.name, round(self.value / other, 2))
 
@@ -56,6 +60,19 @@ class Money:
     # def round(self, ndigits=None):
     #     return round(self._val, ndigits=ndigits)
 
+    @classmethod
+    def convert_to_usd(cls, name: str, value: int | float):
+        url = 'https://www.cbr-xml-daily.ru/daily_json.js'
+        answer = requests.get(url=url)
+        cache = answer.json()
+        if answer:
+            cache = answer.json()
+            t = cache['Valute']['USD']['Value']
+            return Money('USD', round(value * t, 2))
+        else:
+            t = cache['Valute']['USD']['Value']
+            return Money('USD', round(value * t, 2))
+
     def __str__(self):
         return f'{self.value} {self.name}'
 
@@ -65,11 +82,11 @@ if __name__ == '__main__':
     rur_2 = Money('RUR', 5.52)
     rur_3 = Money('RUR', 5.52)
 
-    print(rur_1 + rur_2)
-    print(rur_1 - rur_2)
-    rur_1 *= 2
-    print(rur_1)
-    print(rur_2 / 2)
-    print(rur_2 >= rur_1)
-    print(rur_2 > rur_3)
-
+    print(Money.convert_to_usd('RUR', 10))
+    # print(rur_1 + rur_2)
+    # print(rur_1 - rur_2)
+    # rur_1 *= 2
+    # print(rur_1)
+    # print(rur_2 / 2)
+    # print(rur_2 >= rur_1)
+    # print(rur_2 > rur_3)
