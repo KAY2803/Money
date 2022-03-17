@@ -27,3 +27,4 @@ if __name__ == '__main__':
     tup = (a, b)
     check_type(tup, tuple)
 
+

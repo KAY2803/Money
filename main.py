@@ -1,36 +1,35 @@
 import json
+
 import requests
+from errors import *
+
+from cache import full_cache, from_cache, valutes, URL
 from typing import Union, Optional
 from utils import check_types, check_type
 
 
 class Money:
 
-    def __init__(self, name: str, value: float):
-        self.name = name
+    def __init__(self, value: int | float, name: str):
+        check_type(value, (int | float))
         self.value = value
+        self.name = name
 
     def __add__(self, other):
         check_type(other, Money)
-        if self.name == other.name:
-            return Money(self.name, round(self.value + other.value, 2))
-
-    # добавить else (конвертация в одну валюту) или ошибку
+        return Money(round(self.value + other.value, 2), self.name)
 
     def __sub__(self, other):
         check_type(other, Money)
-        if self.name == other.name:
-            return Money(self.name, round(self.value - other.value, 2))
-
-    # добавить else (конвертация в одну валюту) или ошибку
+        return Money(round(self.value - other.value, 2), self.name)
 
     def __mul__(self, other: int | float):
         check_types(other, (int, float))
-        return Money(self.name, round(self.value * other, 2))
+        return Money(round(self.value * other, 2), self.name)
 
     def __truediv__(self, other: int | float):
         check_types(other, (int, float))
-        return Money(self.name, round(self.value / other, 2))
+        return Money(round(self.value / other, 2), self.name)
 
     def __eq__(self, other):
         check_type(other, Money)
@@ -61,32 +60,49 @@ class Money:
     #     return round(self._val, ndigits=ndigits)
 
     @classmethod
-    def convert_to_usd(cls, name: str, value: int | float):
-        url = 'https://www.cbr-xml-daily.ru/daily_json.js'
-        answer = requests.get(url=url)
-        cache = answer.json()
-        if answer:
-            cache = answer.json()
-            t = cache['Valute']['USD']['Value']
-            return Money('USD', round(value * t, 2))
-        else:
-            t = cache['Valute']['USD']['Value']
-            return Money('USD', round(value * t, 2))
+    def convert_to_usd(cls, obj: 'Money', valute='USD'):
+        check_type(obj, (Money))
+        try:
+            if requests.get(URL).status_code == 200:
+                full_cache(URL)
+                t = requests.get(URL).json()['Valute']['USD']['Value']
+                return cls(round(obj.value / t, 2), valute)
+        except requests.exceptions.ConnectionError:
+            t = from_cache()['Valute']['USD']['Value']
+            return cls(round(obj.value / t, 2), valute)
+
+    @classmethod
+    def convert_to_valute(cls, obj: 'Money', valute: str):
+        check_type(obj, (Money))
+        if not valute in valutes()['Valute'].keys():
+            raise ValuteTypeError
+        try:
+            if requests.get(URL).status_code == 200:
+                full_cache(URL)
+                t = requests.get(URL).json()['Valute'][valute]['Value']
+                n = requests.get(URL).json()['Valute'][valute]['Nominal']
+                return cls(round(obj.value / (t / n), 2), valute)
+        except requests.exceptions.ConnectionError:
+            t = from_cache()['Valute'][valute]['Value']
+            n = from_cache()['Valute'][valute]['Nominal']
+            return cls(round(obj.value / (t / n), 2), valute)
 
     def __str__(self):
         return f'{self.value} {self.name}'
 
 
 if __name__ == '__main__':
-    rur_1 = Money('RUR', 8.73)
-    rur_2 = Money('RUR', 5.52)
-    rur_3 = Money('RUR', 5.52)
-
-    print(Money.convert_to_usd('RUR', 10))
+    rur_1 = Money(8.73, 'RUR')
+    rur_2 = Money(5.52, 'RUR')
+    rur_3 = Money(100, 'RUR')
     # print(rur_1 + rur_2)
     # print(rur_1 - rur_2)
-    # rur_1 *= 2
-    # print(rur_1)
+    rur_1 *= 2
     # print(rur_2 / 2)
     # print(rur_2 >= rur_1)
     # print(rur_2 > rur_3)
+
+    print(rur_1)
+    print(Money.convert_to_usd(rur_1))
+    print(rur_3)
+    print(Money.convert_to_valute(rur_3, 'AMD'))
