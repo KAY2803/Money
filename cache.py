@@ -45,5 +45,4 @@ def valutes():
 if __name__ == '__main__':
     URL = 'https://www.cbr-xml-daily.ru/daily_json.js'
     print(cache(URL))
-    # print(valutes().keys())
-    # print(DATE)
+    print(valutes().keys())
