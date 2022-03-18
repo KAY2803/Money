@@ -4,28 +4,25 @@ import requests
 
 FILE = 'file.json'
 VAL = 'valute.json'
-URL = 'https://www.cbr-xml-daily.ru/daily_json.js'
+url = 'https://www.cbr-xml-daily.ru/daily_json.js'
 
 
-def full_cache(URL):
+def cache(url):
     try:
-        if requests.get(URL):
-            data = requests.get(URL).json()
+        if requests.get(url).status_code == 200:
+            data = requests.get(url).json()
             with open(FILE, 'w', encoding="utf-8") as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
+                return data
     except requests.exceptions.ConnectionError:
-        print('Отсутствует соединение')
-
-
-def from_cache():
-    with open(FILE) as f:
-        data = json.load(f)
-        return data
+        with open(FILE, encoding="utf-8") as f:
+            data = json.load(f)
+            return data
 
 
 def valutes():
     try:
-        val = requests.get(URL).json()['Valute']
+        val = requests.get(url).json()['Valute']
         with open(VAL, 'w', encoding="utf-8") as f:
             json.dump(val, f, indent=4, ensure_ascii=False)
             return val
@@ -37,6 +34,5 @@ def valutes():
 
 if __name__ == '__main__':
     url = 'https://www.cbr-xml-daily.ru/daily_json.js'
-    print(full_cache(url))
-    # print(from_cache())
+    print(cache(url))
     print(valutes())

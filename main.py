@@ -1,10 +1,7 @@
-import json
-
-import requests
-from errors import *
-
-from cache import full_cache, from_cache, valutes, URL
 from typing import Optional
+
+from cache import cache, valutes, url
+from errors import ValuteTypeError
 from utils import check_types, check_type
 
 
@@ -17,11 +14,15 @@ class Money:
 
     def __add__(self, other):
         check_type(other, Money)
-        return Money(round(self.value + other.value, 2), self.name)
+        if self.name == other.name:
+            return Money(round(self.value + other.value, 2), self.name)
+        raise ValuteTypeError
 
     def __sub__(self, other):
         check_type(other, Money)
-        return Money(round(self.value - other.value, 2), self.name)
+        if self.name == other.name:
+            return Money(round(self.value - other.value, 2), self.name)
+        raise ValuteTypeError
 
     def __mul__(self, other: int | float):
         check_types(other, (int, float))
@@ -55,37 +56,23 @@ class Money:
         check_type(other, Money)
         return self.value >= other.value
 
-    # добавить магический метод round
     # def round(self, ndigits=None):
-    #     return round(self._val, ndigits=ndigits)
+    #      return round(self._val, ndigits=ndigits)
 
     @classmethod
     def convert_to_usd(cls, obj: 'Money', valute='USD'):
         check_type(obj, (Money))
-        try:
-            if requests.get(URL).status_code == 200:
-                full_cache(URL)
-                t = requests.get(URL).json()['Valute']['USD']['Value']
-                return cls(round(obj.value / t, 2), valute)
-        except requests.exceptions.ConnectionError:
-            t = from_cache()['Valute']['USD']['Value']
-            return cls(round(obj.value / t, 2), valute)
+        t = cache(url)['Valute']['USD']['Value']
+        return cls(round(obj.value / t, 2), valute)
 
     @classmethod
     def convert_to_valute(cls, obj: 'Money', valute: str):
         check_type(obj, (Money))
-        if not valute in valutes().keys():
+        if valute not in valutes().keys():
             raise ValuteTypeError
-        try:
-            if requests.get(URL).status_code == 200:
-                full_cache(URL)
-                t = requests.get(URL).json()['Valute'][valute]['Value']
-                n = requests.get(URL).json()['Valute'][valute]['Nominal']
-                return cls(round(obj.value / (t / n), 2), valute)
-        except requests.exceptions.ConnectionError:
-            t = from_cache()['Valute'][valute]['Value']
-            n = from_cache()['Valute'][valute]['Nominal']
-            return cls(round(obj.value / (t / n), 2), valute)
+        t = cache(url)['Valute'][valute]['Value']
+        n = cache(url)['Valute'][valute]['Nominal']
+        return cls(round(obj.value / (t / n), 2), valute)
 
     def __str__(self):
         return f'{self.value} {self.name}'
