@@ -4,13 +4,13 @@ import requests
 from errors import *
 
 from cache import full_cache, from_cache, valutes, URL
-from typing import Union, Optional
+from typing import Optional
 from utils import check_types, check_type
 
 
 class Money:
 
-    def __init__(self, value: int | float, name: str):
+    def __init__(self, value: int | float, name: Optional[str] = None):
         check_type(value, (int | float))
         self.value = value
         self.name = name
@@ -74,7 +74,7 @@ class Money:
     @classmethod
     def convert_to_valute(cls, obj: 'Money', valute: str):
         check_type(obj, (Money))
-        if not valute in valutes()['Valute'].keys():
+        if not valute in valutes().keys():
             raise ValuteTypeError
         try:
             if requests.get(URL).status_code == 200:
@@ -95,14 +95,15 @@ if __name__ == '__main__':
     rur_1 = Money(8.73, 'RUR')
     rur_2 = Money(5.52, 'RUR')
     rur_3 = Money(100, 'RUR')
-    # print(rur_1 + rur_2)
-    # print(rur_1 - rur_2)
-    rur_1 *= 2
-    # print(rur_2 / 2)
-    # print(rur_2 >= rur_1)
-    # print(rur_2 > rur_3)
+    print(rur_1, rur_2, rur_3)
 
+    print(rur_1 + rur_2)
+    print(rur_1 - rur_2)
+    rur_1 *= 2
     print(rur_1)
-    print(Money.convert_to_usd(rur_1))
-    print(rur_3)
-    print(Money.convert_to_valute(rur_3, 'AMD'))
+    print(rur_2 / 2)
+    print(rur_2 >= rur_1)
+    print(rur_2 < rur_3)
+
+    print(rur_1, Money.convert_to_usd(rur_1))
+    print(rur_3, Money.convert_to_valute(rur_3, 'AMD'))
