@@ -59,27 +59,51 @@ class Money:
 
     def __eq__(self, other: 'Money'):
         check_type(other, Money)
-        return self.value == other.value
+        if self.name == other.name:
+            return self.value == other.value
+        else:
+            other = Money._convert_to_valute(other, self.name)
+            return self.value == other.value
 
     def __ne__(self, other: 'Money'):
         check_type(other, Money)
-        return self.value != other.value
+        if self.name == other.name:
+            return self.value != other.value
+        else:
+            other = Money._convert_to_valute(other, self.name)
+            return self.value != other.value
 
     def __lt__(self, other: 'Money'):
         check_type(other, Money)
-        return self.value < other.value
+        if self.name == other.name:
+            return self.value < other.value
+        else:
+            other = Money._convert_to_valute(other, self.name)
+            return self.value < other.value
 
     def __le__(self, other: 'Money'):
         check_type(other, Money)
-        return self.value <= other.value
+        if self.name == other.name:
+            return self.value <= other.value
+        else:
+            other = Money._convert_to_valute(other, self.name)
+            return self.value <= other.value
 
     def __gt__(self, other: 'Money'):
         check_type(other, Money)
-        return self.value > other.value
+        if self.name == other.name:
+            return self.value > other.value
+        else:
+            other = Money._convert_to_valute(other, self.name)
+            return self.value > other.value
 
     def __ge__(self, other: 'Money'):
         check_type(other, Money)
-        return self.value >= other.value
+        if self.name == other.name:
+            return self.value >= other.value
+        else:
+            other = Money._convert_to_valute(other, self.name)
+            return self.value >= other.value
 
     @classmethod
     def _convert_to_usd(cls, obj: 'Money', valute='USD'):
