@@ -59,27 +59,51 @@ class Money:
 
     def __eq__(self, other: 'Money'):
         check_type(other, Money)
-        return self.value == other.value
+        if self.name == other.name:
+            return self.value == other.value
+        else:
+            other = Money._convert_to_valute(other, self.name)
+            return self.value == other.value
 
     def __ne__(self, other: 'Money'):
         check_type(other, Money)
-        return self.value != other.value
+        if self.name == other.name:
+            return self.value != other.value
+        else:
+            other = Money._convert_to_valute(other, self.name)
+            return self.value != other.value
 
     def __lt__(self, other: 'Money'):
         check_type(other, Money)
-        return self.value < other.value
+        if self.name == other.name:
+            return self.value < other.value
+        else:
+            other = Money._convert_to_valute(other, self.name)
+            return self.value < other.value
 
     def __le__(self, other: 'Money'):
         check_type(other, Money)
-        return self.value <= other.value
+        if self.name == other.name:
+            return self.value <= other.value
+        else:
+            other = Money._convert_to_valute(other, self.name)
+            return self.value <= other.value
 
     def __gt__(self, other: 'Money'):
         check_type(other, Money)
-        return self.value > other.value
+        if self.name == other.name:
+            return self.value > other.value
+        else:
+            other = Money._convert_to_valute(other, self.name)
+            return self.value > other.value
 
     def __ge__(self, other: 'Money'):
         check_type(other, Money)
-        return self.value >= other.value
+        if self.name == other.name:
+            return self.value >= other.value
+        else:
+            other = Money._convert_to_valute(other, self.name)
+            return self.value >= other.value
 
     @classmethod
     def _convert_to_usd(cls, obj: 'Money', valute='USD'):
@@ -131,17 +155,17 @@ if __name__ == '__main__':
     rur_2 = Money(5.5286, 'RUR')
     rur_3 = Money(100, 'RUR')
     rur_4 = Money(100, 'USD')
-    print(rur_1, rur_2, rur_3)
-
-    print(rur_1 + rur_2)
-    print(rur_1 - rur_2)
-    rur_1 *= 2
-    print(rur_1)
-    print(rur_2 / 2)
-    print(rur_2 >= rur_1)
-    print(rur_2 < rur_3)
-
-    print(rur_1, Money._convert_to_usd(rur_1))
-    print(rur_3, Money._convert_to_valute(rur_3, 'AMD'))
-    print(rur_4, Money._convert_to_valute(rur_4, 'EUR'))
-    print(rur_4, Money._convert_to_valute(rur_4, 'RUR'))
+    # print(rur_1, rur_2, rur_3)
+    #
+    # print(rur_1 + rur_2)
+    # print(rur_1 - rur_2)
+    # rur_1 *= 2
+    # print(rur_1)
+    # print(rur_2 / 2)
+    print(rur_4 >= rur_3)
+    # print(rur_2 < rur_3)
+    #
+    # print(rur_1, Money._convert_to_usd(rur_1))
+    # print(rur_3, Money._convert_to_valute(rur_3, 'AMD'))
+    # print(rur_4, Money._convert_to_valute(rur_4, 'EUR'))
+    # print(rur_4, Money._convert_to_valute(rur_4, 'RUR'))

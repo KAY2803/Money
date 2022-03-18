@@ -1,12 +1,15 @@
 """Модуль, который описывает создание и обновление данных о курсах валют"""
 
+from datetime import date
 import json
 import requests
+
 
 
 FILE = 'file.json'
 VAL = 'valute.json'
 URL = 'https://www.cbr-xml-daily.ru/daily_json.js'
+DATE = {'Последняя дата обновления ': str(date.today())}
 
 
 def cache(URL):
@@ -14,6 +17,7 @@ def cache(URL):
     try:
         if requests.get(URL).status_code == 200:
             data = requests.get(URL).json()
+            data.update(DATE)
             with open(FILE, 'w', encoding="utf-8") as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
                 return data
@@ -41,4 +45,5 @@ def valutes():
 if __name__ == '__main__':
     URL = 'https://www.cbr-xml-daily.ru/daily_json.js'
     print(cache(URL))
-    print(valutes().keys())
+    # print(valutes().keys())
+    # print(DATE)
